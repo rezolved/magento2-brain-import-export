@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Firebear_ImportExport:etc/di_export.xsd">
+    <entity name="catalog_product_brain" label="Products For Brain" model="Rezolve\BrainImportExport\Model\Export\BrainProduct"/>
+</config>
