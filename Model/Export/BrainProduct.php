@@ -370,7 +370,7 @@ class BrainProduct extends FirebearExportProduct
                 if (!$storeId) {
                     $item->setStoreId($defaultStoreId);
                 }
-                $data[$itemId][$storeId][self::COL_LINK] = $item->isVisibleInSiteVisibility() ?
+                $data[$itemId][$storeId][self::COL_LINK] = $item->isVisibleInCatalog() ?
                     $item->getUrlModel()->getUrl($item) :
                     $this->makeSystemLink($item);
 
@@ -640,6 +640,8 @@ class BrainProduct extends FirebearExportProduct
         $data = [];
         /** @var ProductCollection $collection */
         $collection = $this->_getEntityCollection()->clear();
+        $linkField = 'entity_id';
+        $configurableProductRelation = $collection->getTable('catalog_product_super_link');
 
         if (isset($this->getParameters()['only_admin'])
             && $this->getParameters()['only_admin'] == 1
@@ -665,6 +667,11 @@ class BrainProduct extends FirebearExportProduct
             }
             $collection->clear();
         } else {
+            $collection->getSelect()->joinLeft(
+                ['cpr' => $configurableProductRelation],
+                'e.' . $linkField . ' = cpr.product_id',
+                ['parent_id' => 'parent_id']
+            )->group('entity_id');
             $collectionByStore = clone $collection;
             foreach (array_keys($this->getStores()) as $storeId) {
                 $collectionByStore->addStoreFilter($storeId);
