@@ -36,6 +36,7 @@ use Magento\Swatches\Helper\Data;
 use Magento\Swatches\Model\ResourceModel\Swatch\CollectionFactory as SwatchCollectionFactory;
 use Psr\Log\LoggerInterface;
 use Zend_Db_Statement_Exception;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\Url;
 
 class BrainProduct extends FirebearExportProduct
@@ -365,7 +366,6 @@ class BrainProduct extends FirebearExportProduct
                 $data[$itemId][$storeId][self::COL_WEIGHT] = $item->getData(self::COL_WEIGHT);
                 $data[$itemId][$storeId][self::COL_MODEL] = $item->getData(self::COL_MODEL);
                 $data[$itemId][$storeId]['product_link_id'] = $productLinkId;
-                //$data[$itemId][$storeId][self::COL_MEDIA_IMAGE] = $this->apiProduct->getProductImageUrl($item);
 
                 if (!$storeId) {
                     $item->setStoreId($defaultStoreId);
@@ -373,13 +373,27 @@ class BrainProduct extends FirebearExportProduct
                 $data[$itemId][$storeId][self::COL_LINK] = $item->isVisibleInCatalog() ?
                     $item->getUrlModel()->getUrl($item) :
                     $this->makeSystemLink($item);
-
+                $data[$itemId][$storeId][self::COL_MEDIA_IMAGE] = $this->getProductImage($item, $storeId);
                 $data[$itemId][$storeId][self::COL_SYSTEM_LINK] = $this->makeSystemLink($item);
             }
         }
 
         return $data;
     }
+
+    /**
+     * @param $product
+     * @param $storeId
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    protected function getProductImage($product, $storeId = null)
+    {
+        $mediaUrl = $this->_storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+
+        return $mediaUrl . 'catalog/product' . $product->getImage();
+    }
+
 
     /**
      * @param $item
@@ -667,6 +681,7 @@ class BrainProduct extends FirebearExportProduct
             }
             $collection->clear();
         } else {
+            $collection->addAttributeToSelect('*');
             $collection->getSelect()->joinLeft(
                 ['cpr' => $configurableProductRelation],
                 'e.' . $linkField . ' = cpr.product_id',
