@@ -43,6 +43,7 @@ class BrainProduct extends FirebearExportProduct
 {
     const ENTITY_TYPE_CODE = 'catalog_product';
     const COL_PRODUCT_ID = 'product_id';
+    const COL_INTERNAL_ID = 'internal_id';
     const COL_PARENT_ID = 'parent_id';
     const COL_MODEL = 'model';
     const COL_BRAND = 'brand';
@@ -352,6 +353,7 @@ class BrainProduct extends FirebearExportProduct
                 $data[$itemId][$storeId]['product_online'] = $item->getStatus();
                 $data[$itemId][$storeId]['store_id'] = $storeId;
                 $data[$itemId][$storeId][self::COL_PRODUCT_ID] = $item->getSku();
+                $data[$itemId][$storeId][self::COL_INTERNAL_ID] = $item->getId();
                 $data[$itemId][$storeId][self::COL_WEIGHT] = $item->getData(self::COL_WEIGHT);
                 $data[$itemId][$storeId][self::COL_BRAND] = $item->getData(self::COL_BRAND);
                 $data[$itemId][$storeId][self::COL_GTIN] = $item->getData(self::COL_GTIN);
@@ -603,6 +605,7 @@ class BrainProduct extends FirebearExportProduct
                 [
                     self::COL_SKU,
                     self::COL_PRODUCT_ID,
+                    self::COL_INTERNAL_ID,
                     self::COL_ATTR_SET,
                     self::COL_CATEGORY,
                     self::COL_PARENT_ID,
