@@ -358,15 +358,10 @@ class BrainProduct extends FirebearExportProduct
                 $data[$itemId][$storeId][self::COL_BRAND] = $item->getData(self::COL_BRAND);
                 $data[$itemId][$storeId][self::COL_GTIN] = $item->getData(self::COL_GTIN);
                 $data[$itemId][$storeId][self::COL_MPN] = $item->getData(self::COL_MPN);
-                $data[$itemId][$storeId][self::COL_CONDITION] = $item->getData(self::COL_CONDITION);
-                $data[$itemId][$storeId][self::COL_CERTIFICATION] = $item->getData(self::COL_CERTIFICATION);
-                $data[$itemId][$storeId][self::COL_MATERIAL] = $item->getData(self::COL_MATERIAL);
-                $data[$itemId][$storeId][self::COL_PATTERN] = $item->getData(self::COL_PATTERN);
                 $data[$itemId][$storeId][self::COL_PRODUCT_LENGTH] = $item->getData(self::COL_PRODUCT_LENGTH);
                 $data[$itemId][$storeId][self::COL_PRODUCT_WIDTH] = $item->getData(self::COL_PRODUCT_WIDTH);
                 $data[$itemId][$storeId][self::COL_PRODUCT_HEIGHT] = $item->getData(self::COL_PRODUCT_HEIGHT);
                 $data[$itemId][$storeId][self::COL_WEIGHT] = $item->getData(self::COL_WEIGHT);
-                $data[$itemId][$storeId][self::COL_MODEL] = $item->getData(self::COL_MODEL);
                 $data[$itemId][$storeId]['product_link_id'] = $productLinkId;
 
                 if (!$storeId) {
@@ -753,7 +748,12 @@ class BrainProduct extends FirebearExportProduct
                     self::COL_AGE_GROUP,
                     self::COL_GENDER,
                     self::COL_SIZESYTEM,
-                    self::COL_SIZETYPE
+                    self::COL_SIZETYPE,
+                    self::COL_CONDITION,
+                    self::COL_CERTIFICATION,
+                    self::COL_MATERIAL,
+                    self::COL_PATTERN,
+                    self::COL_MODEL
                 ];
             }
 
