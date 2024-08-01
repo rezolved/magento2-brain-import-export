@@ -367,7 +367,7 @@ class BrainProduct extends FirebearExportProduct
                 if (!$storeId) {
                     $item->setStoreId($defaultStoreId);
                 }
-                $data[$itemId][$storeId][self::COL_LINK] = $item->isVisibleInCatalog() ?
+                $data[$itemId][$storeId][self::COL_LINK] = $item->isVisibleInSiteVisibility() ?
                     $item->getUrlModel()->getUrl($item) :
                     $this->makeSystemLink($item);
                 $data[$itemId][$storeId][self::COL_MEDIA_IMAGE] = $this->getProductImage($item, $storeId);
