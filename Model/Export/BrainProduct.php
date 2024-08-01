@@ -504,6 +504,141 @@ class BrainProduct extends FirebearExportProduct
     }
 
     /**
+     * @param array $dataRow
+     * @param array $multiRawData
+     * @return array|null
+     * @throws Zend_Db_Statement_Exception
+     */
+    protected function appendMultirowData(&$dataRow, &$multiRawData)
+    {
+        $pId = $dataRow['internal_id'];
+        $productLinkId = $dataRow['product_link_id'];
+        $storeId = $dataRow['store_id'];
+        $sku = $dataRow[self::COL_SKU];
+
+        unset($dataRow['product_link_id']);
+        unset($dataRow['store_id']);
+        unset($dataRow[self::COL_SKU]);
+        unset($dataRow[self::COL_STORE]);
+
+        $this->updateDataWithCategoryColumns($dataRow, $multiRawData['rowCategories'], $pId);
+        $this->updateDataWithCategoryPositionColumns($dataRow, $multiRawData['rowCategoriesPosition'], $pId);
+        $this->updateDataWithCategoryIdsColumns($dataRow, $multiRawData['rowCategoryIds'], $pId);
+
+        if (!empty($multiRawData['rowWebsites'][$pId])) {
+            $websiteCodes = [];
+            foreach ($multiRawData['rowWebsites'][$pId] as $productWebsite) {
+                $websiteCodes[] = $this->_websiteIdToCode[$productWebsite];
+            }
+            $dataRow[self::COL_PRODUCT_WEBSITES] =
+                implode($this->multipleValueSeparator, $websiteCodes);
+            $multiRawData['rowWebsites'][$pId] = [];
+        }
+
+        $multiRawData['mediaGalery'] = $this->getMediaGallery([$productLinkId]);
+        if (!empty($multiRawData['mediaGalery'][$productLinkId])) {
+            $additionalImages = $additionalLabels = [];
+            $baseImages = $baseLabels = [];
+            $additionalImageIsDisabled = [];
+            foreach ($multiRawData['mediaGalery'][$productLinkId] as $mediaItem) {
+                if ($mediaItem['_media_frontend_label'] == 'Base') {
+                    $baseImages[] = $mediaItem['_media_image'];
+                    $baseLabels[] = $mediaItem['_media_label'];
+                } else {
+                    $additionalImages[] = $mediaItem['_media_image'];
+                    $additionalLabels[] = $mediaItem['_media_label'];
+                }
+                if ($mediaItem['_media_is_disabled'] == true && $mediaItem['_media_store_id'] == $storeId) {
+                    $additionalImageIsDisabled[] = $mediaItem['_media_image'];
+                }
+            }
+
+            $dataRow['base_image'] = implode(
+                $this->multipleValueSeparator,
+                array_filter(array_unique($baseImages))
+            );
+            $dataRow['base_image_labels'] = implode(
+                $this->multipleValueSeparator,
+                array_filter(array_unique($baseLabels))
+            );
+            $dataRow['additional_images'] = implode(
+                $this->multipleValueSeparator,
+                array_filter(array_unique($additionalImages))
+            );
+            $dataRow['additional_image_labels'] = implode(
+                $this->multipleValueSeparator,
+                array_filter(array_unique($additionalLabels))
+            );
+            $dataRow['hide_from_product_page'] = implode(
+                $this->multipleValueSeparator,
+                array_filter(array_unique($additionalImageIsDisabled))
+            );
+            $multiRawData['mediaGalery'][$productLinkId] = [];
+        }
+        foreach ($this->_linkTypeProvider->getLinkTypes() as $typeName => $linkId) {
+            if (!empty($multiRawData['linksRows'][$productLinkId][$linkId])) {
+                $colPrefix = $typeName . '_';
+                $associations = [];
+                foreach ($multiRawData['linksRows'][$productLinkId][$linkId] as $linkData) {
+                    if ($linkData['default_qty'] !== null) {
+                        $skuItem = $linkData['sku']
+                            . ImportProduct::PAIR_NAME_VALUE_SEPARATOR
+                            . $linkData['default_qty'];
+                    } else {
+                        $skuItem = $linkData['sku'];
+                    }
+                    $associations[$skuItem] = $linkData['position'];
+                }
+                $multiRawData['linksRows'][$productLinkId][$linkId] = [];
+                asort($associations);
+                $dataRow[$colPrefix . 'skus'] = implode(
+                    $this->multipleValueSeparator,
+                    array_keys($associations)
+                );
+                $dataRow[$colPrefix . 'position'] = implode(
+                    $this->multipleValueSeparator,
+                    array_values($associations)
+                );
+            }
+        }
+        $dataRow = $this->rowCustomizer->addData($dataRow, $pId);
+
+        if (!empty($this->collectedMultiselectsData[$storeId][$productLinkId])) {
+            foreach (array_keys($this->collectedMultiselectsData[$storeId][$productLinkId]) as $attrKey) {
+                if (!empty($this->collectedMultiselectsData[$storeId][$productLinkId][$attrKey])) {
+                    $dataRow[$attrKey] =
+                        implode(
+                            $this->multipleValueSeparator,
+                            $this->collectedMultiselectsData[$storeId][$productLinkId][$attrKey]
+                        );
+                }
+            }
+        }
+
+        if (!empty($multiRawData['customOptionsData'][$productLinkId][$storeId])) {
+            $customOptionsRows =
+                $multiRawData['customOptionsData'][$productLinkId][$storeId];
+            $multiRawData['customOptionsData'][$productLinkId][$storeId] = [];
+            $customOptions =
+                implode(ImportProduct::PSEUDO_MULTI_LINE_SEPARATOR, $customOptionsRows);
+
+            $dataRow = array_merge(
+                $dataRow,
+                ['custom_options' => $customOptions]
+            );
+        }
+
+        if (empty($dataRow)) {
+            return null;
+        } elseif ($storeId != Store::DEFAULT_STORE_ID) {
+            $dataRow[self::COL_STORE] = $this->_storeIdToCode[$storeId];
+        }
+        $dataRow[self::COL_SKU] = $sku;
+
+        return $dataRow;
+    }
+
+    /**
      * @param $rowData
      * @return array
      */
