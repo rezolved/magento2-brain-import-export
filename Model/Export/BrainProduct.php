@@ -639,6 +639,31 @@ class BrainProduct extends FirebearExportProduct
     }
 
     /**
+     * {@inheritDoc}
+     */
+    protected function updateDataWithCategoryColumns(&$dataRow, &$rowCategories, $productId)
+    {
+        if (!isset($rowCategories[$productId])) {
+            return false;
+        }
+        $categories = [];
+        foreach ($rowCategories[$productId] as $categoryId) {
+            if (!isset($this->_rootCategories[$categoryId])) {
+                continue;
+            }
+            $categoryPath = '';
+            if (isset($this->_categories[$categoryId])) {
+                $categoryPath .= $this->_categories[$categoryId];
+            }
+            $categories[] = $categoryPath;
+        }
+        $dataRow[self::COL_CATEGORY] = implode(Import::DEFAULT_GLOBAL_MULTI_VALUE_SEPARATOR, $categories);
+        unset($rowCategories[$productId]);
+
+        return true;
+    }
+
+    /**
      * @param $rowData
      * @return array
      */
