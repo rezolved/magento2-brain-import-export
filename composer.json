@@ -1,5 +1,5 @@
 {
-    "name": "rezolve/rezolve_rce_brain_importexport",
+    "name": "rezolve/magento2-brain-import-export",
     "description": "RCE: Add new export entity 'Products For Brain'",
     "require": {
         "php": "~8.1.0||~8.2.0||~8.3.0",
