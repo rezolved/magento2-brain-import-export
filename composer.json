@@ -1,0 +1,23 @@
+{
+    "name": "rezolve/magento2-brain-import-export",
+    "description": "RCE: Add new export entity 'Products For Brain'",
+    "require": {
+        "php": "~8.1.0||~8.2.0||~8.3.0",
+        "magento/framework": "103.0.*",
+        "magento/module-catalog": "104.0.*",
+        "magento/module-catalog-import-export": "101.1.*",
+        "magento/module-import-export": "101.0.*",
+        "magento/module-store": "101.1.*"
+    },
+    "type": "magento2-module",
+    "version": "1.0.1",
+    "license": "OSL-3.0",
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Rezolve\\BrainImportExport\\" : ""
+        }
+    }
+}
