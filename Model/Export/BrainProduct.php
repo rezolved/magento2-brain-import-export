@@ -12,6 +12,7 @@ use Firebear\ImportExport\Model\ExportJob\Processor;
 use IntlDateFormatter;
 use Firebear\ImportExport\Model\Export\Product as FirebearExportProduct;
 use Firebear\ImportExport\Api\Export\History\GetListInterface;
+use Magento\Catalog\Model\Product\Attribute\Repository as AttributeRepository;
 use Magento\Catalog\Model\Product\LinkTypeProvider;
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
@@ -100,6 +101,8 @@ class BrainProduct extends FirebearExportProduct
      * @param CacheInterface $cache
      * @param SerializerInterface $serializer
      * @param AdditionalFieldsPool $additionalFieldsPool
+     * @param GetListInterface $historyList
+     * @param AttributeRepository $attributeRepository
      * @param SeparatorFormatterInterface $separatorFormatter
      * @param Url $url
      * @param array $dateAttrCodes
@@ -130,6 +133,7 @@ class BrainProduct extends FirebearExportProduct
         SerializerInterface $serializer,
         AdditionalFieldsPool $additionalFieldsPool,
         GetListInterface $historyList,
+        AttributeRepository $attributeRepository,
         SeparatorFormatterInterface $separatorFormatter,
         Url $url,
         array $dateAttrCodes = []
@@ -159,6 +163,8 @@ class BrainProduct extends FirebearExportProduct
             $serializer,
             $additionalFieldsPool,
             $separatorFormatter,
+            $historyList,
+            $attributeRepository,
             $dateAttrCodes
         );
         $this->url = $url;
