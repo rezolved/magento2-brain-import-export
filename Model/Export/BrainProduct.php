@@ -431,6 +431,7 @@ class BrainProduct extends FirebearExportProduct
                 }
             }
             $rawData = $this->collectRawData();
+            $this->exportedProductIds = array_keys($rawData);
             $multirawData = $this->collectMultirawData();
 
             $productIds = array_keys($rawData);
@@ -455,6 +456,7 @@ class BrainProduct extends FirebearExportProduct
                         $stockItemRows[$productId]['is_in_stock'] = (int)$stockItemRows[$productId]['is_in_stock'] === 1 ? 'in_stock' : 'out_of_stock';
                         $dataRow = array_merge($dataRow, $stockItemRows[$productId]);
                     }
+                    $this->addMediaDataToRow($dataRow);
                     $this->appendMultirowData($dataRow, $multirawData);
 
                     if ($dataRow) {
@@ -483,12 +485,23 @@ class BrainProduct extends FirebearExportProduct
                                 }
                             }
                         }
+                        if (empty($dataRow['website_id'])) {
+                            $store = $this->_storeManager->getStore($storeId);
+                            if (!empty($store)) {
+                                $dataRow['website_id'] = (int)$store->getWebsiteId();
+                            }
+                        }
                         $exportData[] = $dataRow;
                     }
-                    $prevData = $dataRow;
+                    if ($storeId == Store::DEFAULT_STORE_ID
+                        && in_array(Store::DEFAULT_STORE_ID, array_keys($productData))) {
+                        $prevData = $dataRow;
+                    } elseif (!in_array(Store::DEFAULT_STORE_ID, array_keys($productData))) {
+                        $prevData = $dataRow;
+                    }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->_logger->critical($e);
         }
         $newData = $this->changeData($exportData, 'product_id');
